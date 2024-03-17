@@ -1,28 +1,33 @@
 
-int N=500, M=500, P=500;
+int N=5000, M=500, P=500;
 
 //number of complex basis functions.
 int N_b=5000;
 //complex number.
 class complex{
-  float []x= new float[N_b];
-  float []y= new float[N_b];
   float k= 0.0, A=10.0;
+  int n=10;
+  float []x;
+  float []y;
   
-  complex(float k, float A){
+  complex(int n,float k, float A){
+    this.n=n;
     this.k=k;
     this.A=A;
-    for(int i=0;i<N_b;i++){
-      this.x[i] = cos(k*(float(i)/N-1.0/2.0)); 
-      this.y[i] = sin(k*(float(i)/N-1.0/2.0)); 
+    x= new float[n];
+    y= new float[n];
+    
+    for(int i=0;i<n;i++){
+      this.x[i] = cos(k*(float(i)/n-1.0/2.0)); 
+      this.y[i] = sin(k*(float(i)/n-1.0/2.0)); 
     }
   }
   
   void showRe(){
     stroke(0,0,180);
     strokeWeight(4);
-    for(int i=0;i<N_b-1;i++){
-      line(i,200+ A*x[i],i+1, 200+A*x[i+1]);
+    for(int i=0;i<n-1;i++){
+      line(i,200+A*x[i],i+1, 200+A*x[i+1]);
       
     }
     noStroke();
@@ -31,7 +36,7 @@ class complex{
   void showIm(){
     stroke(180,0,0);
     strokeWeight(4);
-    for(int i=0;i<N_b-1;i++){
+    for(int i=0;i<n-1;i++){
       line(i, 200+A*y[i],i+1,200+ A*y[i+1]);
     }
     noStroke();
@@ -50,13 +55,15 @@ float [] w     = new float[N];
 //position wavefuntion.
 float [] psi   = new float[N];
 //momentum wavefunction.
-float [] phi   = new float[P];
+float [] phi   = new float[N];
 //amplitudes.(not used yet).
-float [] A     = new float[P];
+float [] A     = new float[N];
 //time.
 float t        = 0.0;
 //group velocity.
 float v_g      = 1.0; 
+
+int idx=0;
 
 void setup(){
   
@@ -70,11 +77,8 @@ void setup(){
   //generate k-axis.
   for(int i=0;i<N;i++){
     k[i]=2*PI*float(i)/N-2*PI*1.0/2.0+2*PI*v_g/2.0;
-    w[i]=0.5*k[i]*k[i];
-    
-    basis[i]= new complex(k[i], 100.0);
-    
-    
+    w[i]=0.5*k[i]*k[i]; 
+    basis[i]= new complex(500,k[i], 100.0); 
   }
  
   for(int i=0;i<2;i++){
@@ -91,14 +95,14 @@ void setup(){
 void draw(){
   background(0);
   t=t+0.01;
+  
+  idx=idx+5;
  // momentum();
-  waveform();
+  //waveform();
   
-  basis[1].showRe();
-  basis[1].showIm();
-  
-  basis[0].showRe();
-  basis[0].showIm();
+  basis[idx].showRe();
+  basis[idx].showIm();
+ 
   
   //render_phi();
   //render_psi();
@@ -115,11 +119,6 @@ void waveform(){
     for(int j=0;j<N;j++){
        psi_accum+= phi[j]*cos(20.0*k[j]*x[i]-w[i]*t);
     }
-    
-    //if(0.1*psi_accum<10.0){
-    //  psi[i]=0.0;
-    //}
-    //else{
     psi[i] = 5.0/sqrt(N)*psi_accum;//}
     psi_accum=0.0;
   }
