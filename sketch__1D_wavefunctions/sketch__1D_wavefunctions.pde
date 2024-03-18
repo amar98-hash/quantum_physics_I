@@ -27,7 +27,7 @@ class complex{
     stroke(0,0,180);
     strokeWeight(4);
     for(int i=0;i<n-1;i++){
-      line(i,200+A*x[i],i+1, 200+A*x[i+1]);
+      line(i,height/2+A*x[i],i+1, height/2+A*x[i+1]);
       
     }
     noStroke();
@@ -37,7 +37,7 @@ class complex{
     stroke(180,0,0);
     strokeWeight(4);
     for(int i=0;i<n-1;i++){
-      line(i, 200+A*y[i],i+1,200+ A*y[i+1]);
+      line(i, height/2+A*y[i],i+1,height/2+ A*y[i+1]);
     }
     noStroke();
     strokeWeight(0);
@@ -46,6 +46,10 @@ class complex{
 }
 //complex basis.
 complex [] basis = new complex[N];
+
+complex sum;
+
+int n=1000;
 
 //x-axis.
 float [] x     = new float[N];
@@ -61,34 +65,40 @@ float [] A     = new float[N];
 //time.
 float t        = 0.0;
 //group velocity.
-float v_g      = 1.0; 
+float v_g      = 0.0; 
 
 int idx=0;
 
 void setup(){
   
-  size(500,500,P2D);
+  size(1000,800,P2D);
   smooth(20);
   
   //generate x-axis.
   for(int i=0;i<N;i++){
     x[i]=float(i)/N-1.0/2.0;
   }
-  //generate k-axis.
+  //generate k-axis, phi and basis sinesoidal.
   for(int i=0;i<N;i++){
     k[i]=2*PI*float(i)/N-2*PI*1.0/2.0+2*PI*v_g/2.0;
     w[i]=0.5*k[i]*k[i]; 
-    basis[i]= new complex(500,k[i], 100.0); 
+    psi[i]=0.0;
+    phi[i]=1.0*exp(-pow(20.0*k[i],2)/10000.0);//*sin(k[i]*20.0);
+    println(phi[i]);
+    basis[i]= new complex(n,20.0*k[i], 100.0); 
   }
+  
+  sum  = new complex(n, 20.0, -50.0);
  
   for(int i=0;i<2;i++){
     
   }
 
-  for(int i=0;i<N;i++){
-    psi[i]=0.0;
-    phi[i]=1.0*exp(-pow(k[i],2)/300.0);//*sin(k[i]*20.0);
-  } 
+  
+  
+  complex_basis(n);
+  
+  
 }
 
 
@@ -100,14 +110,16 @@ void draw(){
  // momentum();
   //waveform();
   
-  basis[idx].showRe();
-  basis[idx].showIm();
+  //basis[idx].showRe();
+  //basis[idx].showIm();
  
   
-  //render_phi();
+  //sum.showRe();
+ 
+  
+  render_phi(200.0);
   //render_psi();
   //println(cos(t));
-
 
 
 }
@@ -126,24 +138,24 @@ void waveform(){
 }
 
 
-void render_psi(){
+void render_psi(float A){
    strokeWeight(5);
    stroke(31, 199, 224);
   for(int i=0;i<N-1;i++){ 
-      line(i,300 -psi[i], i+1, 300-psi[i+1]);
+      line(i,300 -A*psi[i], i+1, 300-A*psi[i+1]);
     
   }
   noStroke();
   strokeWeight(0);
 }
 
-void render_phi(){
+void render_phi(float A){
   strokeWeight(5);
    stroke(31, 199, 224);
    
-  for(int i=0;i<P-1;i++){ 
+  for(int i=0;i<N-N/n;i=i+N/n){ 
      
-      line(i, 700-200*phi[i], i+1, 700-200*phi[i+1]);
+      line(i, 700-A*phi[i], i+N/n, 700-A*phi[i+N/n]);
   }
   noStroke();
   strokeWeight(0);
@@ -152,6 +164,16 @@ void render_phi(){
 
 
 //creates a large number of exp(i(kx-wt)) basis functions.
-void complex_basis(float k,float w){
- 
-}
+void complex_basis(int n){
+  float x_accum=0.0, y_accum=0.0, norm=0.0;
+   for(int i=0;i<n;i++){
+     for(int j=0;j<N;j++){
+       x_accum+= phi[j]*basis[j].x[i];
+       y_accum+= phi[j]*basis[j].y[i];
+     }
+     
+     sum.x[i]=1/float(n)*x_accum;
+     x_accum=0.0;
+   }
+    
+}  
