@@ -23,6 +23,14 @@ class complex{
     }
   }
   
+  void timeEvolve(float t){
+   float w=0.5*k;
+   for(int i=0;i<n;i++){
+      this.x[i] = cos(k*(float(i)/n-0.0/2.0)-w*t); 
+      this.y[i] = sin(k*(float(i)/n-0.0/2.0)-w*t); 
+    }
+  }
+  
   void showRe(){
     stroke(0,0,180);
     strokeWeight(4);
@@ -83,28 +91,19 @@ void setup(){
     k[i]=2*PI*float(i)/N-2*PI*1.0/2.0+2*PI*v_g/2.0;
     w[i]=0.5*k[i]*k[i]; 
     psi[i]=0.0;
-    phi[i]=1.0*exp(-pow(20.0*k[i],2)/10000.0);//*sin(k[i]*20.0);
-    println(phi[i]);
-    basis[i]= new complex(n,20.0*k[i], 100.0); 
+    phi[i]=1.0*exp(-pow(20.0*k[i],2)/50000);//*cos(k[i]*20.0);
+    basis[i]= new complex(n,20.0*k[i], 200.0); 
   }
   
-  sum  = new complex(n, 20.0, -50.0);
- 
-  for(int i=0;i<2;i++){
-    
-  }
-
-  
-  
+  sum  = new complex(n, 20.0, -100.0);
   complex_basis(n);
-  
-  
+
 }
 
 
 void draw(){
   background(0);
-  t=t+0.01;
+  t=t+0.001;
   
   idx=idx+5;
  // momentum();
@@ -112,16 +111,25 @@ void draw(){
   
   //basis[idx].showRe();
   //basis[idx].showIm();
+  //evolve(t);
+
+
+  
+  
+  sum.showRe();
  
   
-  //sum.showRe();
- 
-  
-  render_phi(200.0);
+  //render_phi(200.0);
   //render_psi();
   //println(cos(t));
 
 
+}
+
+void evolve(float t){
+  for(int i=0;i<N;i++){
+     basis[i].timeEvolve(t);
+  }
 }
 
 
@@ -153,9 +161,9 @@ void render_phi(float A){
   strokeWeight(5);
    stroke(31, 199, 224);
    
-  for(int i=0;i<N-N/n;i=i+N/n){ 
-     
-      line(i, 700-A*phi[i], i+N/n, 700-A*phi[i+N/n]);
+  for(int i=0;i<n-1;i=i+1){ 
+     //centering the data frame.
+      line(i, 700-A*phi[i+N/2-N/10], i+1, 700-A*phi[i+N/2-N/10+1]);
   }
   noStroke();
   strokeWeight(0);
@@ -172,7 +180,7 @@ void complex_basis(int n){
        y_accum+= phi[j]*basis[j].y[i];
      }
      
-     sum.x[i]=1/float(n)*x_accum;
+     sum.x[i]=1.0/float(n)*x_accum;
      x_accum=0.0;
    }
     
