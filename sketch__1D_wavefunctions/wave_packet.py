@@ -1,3 +1,11 @@
+from manim import *
+
+config.media_width = "75%"
+config.verbosity = "WARNING"
+
+import math as mth
+
+
 %%manim -qm WaveFunction
 
 class WaveFunction(Scene):
